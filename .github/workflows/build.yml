@@ -10,6 +10,11 @@ on:
       - 'Plain Craft Launcher 2/**'
       - '.github/workflows/**'
   workflow_dispatch:
+    inputs:
+      Release:
+        description: Release
+        default: false
+        type: boolean
 
 jobs:
 
