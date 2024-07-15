@@ -1,6 +1,7 @@
 ﻿'由于包含加解密等安全信息，本文件中的部分代码已被删除
 
 Imports System.Net
+Imports System.Net.Http
 Imports System.Reflection
 Imports System.Security.Cryptography
 
@@ -263,13 +264,21 @@ Friend Module ModSecret
     Public IsUpdateStarted As Boolean = False
     Public IsUpdateWaitingRestart As Boolean = False
     Public Sub UpdateCheckByButton()
-        Hint("该版本中不包含更新功能……")
+        Dim Release As String = NetRequestMulty("https://api.github.com/repos/allMagicNB/PCL2/releases/latest", "GET", "", "application/vnd.github+json", )
+        Dim ReleaseJson As JObject = GetJson(Release)
+        Dim DownloadUrl As String = ReleaseJson("assets")(0)("browser_download_url")
+        Dim Loaders As New List(Of LoaderBase) From {New LoaderDownload("下载启动器更新", New List(Of NetFile) From {New NetFile({DownloadUrl}, Path & "Plain Craft Launcher 2-u.exe", , True)})}
+        Dim Loader As New LoaderCombo(Of String)("启动器更新", Loaders) With {.ProgressWeight = 16}
+        Hint("正在更新……")
+        Loader.Start()
+        ShellOnly("Plain Craft Launcher 2-u.exe", "--update")
     End Sub
     Public Sub UpdateStart(BaseUrl As String, Slient As Boolean, Optional ReceivedKey As String = Nothing, Optional ForceValidated As Boolean = False)
     End Sub
     Public Sub UpdateRestart(TriggerRestartAndByEnd As Boolean)
     End Sub
     Public Sub UpdateReplace(ProcessId As Integer, OldFileName As String, NewFileName As String, TriggerRestart As Boolean)
+        ShellOnly("taskkill", "/f /p " & ProcessId)
     End Sub
 
 #End Region
